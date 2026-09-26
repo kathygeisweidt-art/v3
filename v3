@@ -1,0 +1,513 @@
+--// Training Assist Menu
+--// Designed for your own Roblox Studio experience
+--// PC + Mobile
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local camera = workspace.CurrentCamera
+
+--==================================================
+-- SETTINGS
+--==================================================
+
+local aimEnabled = false
+local aimStrength = 50
+local wallVisionEnabled = false
+
+local AIM_RANGE = 500
+
+--==================================================
+-- GUI
+--==================================================
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "TrainingAssistMenu"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- Reopen button
+local openButton = Instance.new("TextButton")
+openButton.Name = "OpenButton"
+openButton.Size = UDim2.fromOffset(55, 55)
+openButton.Position = UDim2.new(0, 20, 0.5, -27)
+openButton.Text = "☰"
+openButton.TextSize = 25
+openButton.TextColor3 = Color3.new(1,1,1)
+openButton.BackgroundColor3 = Color3.fromRGB(35,35,40)
+openButton.BorderSizePixel = 0
+openButton.Parent = gui
+
+local openCorner = Instance.new("UICorner")
+openCorner.CornerRadius = UDim.new(1,0)
+openCorner.Parent = openButton
+
+-- Main menu
+local menu = Instance.new("Frame")
+menu.Name = "Menu"
+menu.Size = UDim2.fromOffset(330, 360)
+menu.Position = UDim2.new(0.5, -165, 0.5, -180)
+menu.BackgroundColor3 = Color3.fromRGB(25,25,30)
+menu.BorderSizePixel = 0
+menu.Parent = gui
+
+local menuCorner = Instance.new("UICorner")
+menuCorner.CornerRadius = UDim.new(0,12)
+menuCorner.Parent = menu
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -55, 0, 50)
+title.Position = UDim2.fromOffset(15, 5)
+title.BackgroundTransparency = 1
+title.Text = "Training Assist"
+title.TextColor3 = Color3.new(1,1,1)
+title.TextSize = 22
+title.Font = Enum.Font.GothamBold
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = menu
+
+-- Close
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.fromOffset(40,40)
+closeButton.Position = UDim2.new(1,-48,0,10)
+closeButton.Text = "×"
+closeButton.TextSize = 28
+closeButton.TextColor3 = Color3.new(1,1,1)
+closeButton.BackgroundTransparency = 1
+closeButton.Parent = menu
+
+--==================================================
+-- AIM TOGGLE
+--==================================================
+
+local aimLabel = Instance.new("TextLabel")
+aimLabel.Size = UDim2.new(1,-40,0,35)
+aimLabel.Position = UDim2.fromOffset(20,65)
+aimLabel.BackgroundTransparency = 1
+aimLabel.Text = "Aim Assist"
+aimLabel.TextColor3 = Color3.new(1,1,1)
+aimLabel.TextSize = 18
+aimLabel.Font = Enum.Font.Gotham
+aimLabel.TextXAlignment = Enum.TextXAlignment.Left
+aimLabel.Parent = menu
+
+local aimToggle = Instance.new("TextButton")
+aimToggle.Size = UDim2.fromOffset(70,35)
+aimToggle.Position = UDim2.new(1,-90,0,65)
+aimToggle.Text = "OFF"
+aimToggle.TextSize = 15
+aimToggle.TextColor3 = Color3.new(1,1,1)
+aimToggle.BackgroundColor3 = Color3.fromRGB(90,45,45)
+aimToggle.BorderSizePixel = 0
+aimToggle.Parent = menu
+
+local toggleCorner = Instance.new("UICorner")
+toggleCorner.CornerRadius = UDim.new(0,8)
+toggleCorner.Parent = aimToggle
+
+--==================================================
+-- STRENGTH SLIDER
+--==================================================
+
+local strengthLabel = Instance.new("TextLabel")
+strengthLabel.Size = UDim2.new(1,-40,0,30)
+strengthLabel.Position = UDim2.fromOffset(20,110)
+strengthLabel.BackgroundTransparency = 1
+strengthLabel.Text = "Aim Strength: 50%"
+strengthLabel.TextColor3 = Color3.new(1,1,1)
+strengthLabel.TextSize = 16
+strengthLabel.Font = Enum.Font.Gotham
+strengthLabel.TextXAlignment = Enum.TextXAlignment.Left
+strengthLabel.Parent = menu
+
+local sliderBack = Instance.new("Frame")
+sliderBack.Size = UDim2.new(1,-40,0,12)
+sliderBack.Position = UDim2.fromOffset(20,145)
+sliderBack.BackgroundColor3 = Color3.fromRGB(65,65,70)
+sliderBack.BorderSizePixel = 0
+sliderBack.Parent = menu
+
+local sliderCorner = Instance.new("UICorner")
+sliderCorner.CornerRadius = UDim.new(1,0)
+sliderCorner.Parent = sliderBack
+
+local sliderFill = Instance.new("Frame")
+sliderFill.Size = UDim2.new(0.5,0,1,0)
+sliderFill.BackgroundColor3 = Color3.fromRGB(80,150,255)
+sliderFill.BorderSizePixel = 0
+sliderFill.Parent = sliderBack
+
+local fillCorner = Instance.new("UICorner")
+fillCorner.CornerRadius = UDim.new(1,0)
+fillCorner.Parent = sliderFill
+
+local sliderButton = Instance.new("TextButton")
+sliderButton.Size = UDim2.fromOffset(24,24)
+sliderButton.Position = UDim2.new(0.5,-12,0.5,-12)
+sliderButton.Text = ""
+sliderButton.BackgroundColor3 = Color3.new(1,1,1)
+sliderButton.BorderSizePixel = 0
+sliderButton.Parent = sliderBack
+
+local knobCorner = Instance.new("UICorner")
+knobCorner.CornerRadius = UDim.new(1,0)
+knobCorner.Parent = sliderButton
+
+--==================================================
+-- WALL VISION
+--==================================================
+
+local wallLabel = Instance.new("TextLabel")
+wallLabel.Size = UDim2.new(1,-40,0,35)
+wallLabel.Position = UDim2.fromOffset(20,190)
+wallLabel.BackgroundTransparency = 1
+wallLabel.Text = "Wall Vision"
+wallLabel.TextColor3 = Color3.new(1,1,1)
+wallLabel.TextSize = 18
+wallLabel.Font = Enum.Font.Gotham
+wallLabel.TextXAlignment = Enum.TextXAlignment.Left
+wallLabel.Parent = menu
+
+local wallToggle = Instance.new("TextButton")
+wallToggle.Size = UDim2.fromOffset(70,35)
+wallToggle.Position = UDim2.new(1,-90,0,190)
+wallToggle.Text = "OFF"
+wallToggle.TextSize = 15
+wallToggle.TextColor3 = Color3.new(1,1,1)
+wallToggle.BackgroundColor3 = Color3.fromRGB(90,45,45)
+wallToggle.BorderSizePixel = 0
+wallToggle.Parent = menu
+
+local wallCorner = Instance.new("UICorner")
+wallCorner.CornerRadius = UDim.new(0,8)
+wallCorner.Parent = wallToggle
+
+--==================================================
+-- STATUS
+--==================================================
+
+local status = Instance.new("TextLabel")
+status.Size = UDim2.new(1,-40,0,55)
+status.Position = UDim2.fromOffset(20,245)
+status.BackgroundColor3 = Color3.fromRGB(35,35,40)
+status.BorderSizePixel = 0
+status.Text = "Aim Assist: OFF\nWall Vision: OFF"
+status.TextColor3 = Color3.fromRGB(210,210,210)
+status.TextSize = 15
+status.Font = Enum.Font.Gotham
+status.Parent = menu
+
+local statusCorner = Instance.new("UICorner")
+statusCorner.CornerRadius = UDim.new(0,8)
+statusCorner.Parent = status
+
+--==================================================
+-- TOGGLE FUNCTIONS
+--==================================================
+
+local function updateStatus()
+	aimToggle.Text = aimEnabled and "ON" or "OFF"
+	wallToggle.Text = wallVisionEnabled and "ON" or "OFF"
+
+	aimToggle.BackgroundColor3 =
+		aimEnabled
+		and Color3.fromRGB(45,130,70)
+		or Color3.fromRGB(90,45,45)
+
+	wallToggle.BackgroundColor3 =
+		wallVisionEnabled
+		and Color3.fromRGB(45,130,70)
+		or Color3.fromRGB(90,45,45)
+
+	status.Text =
+		"Aim Assist: " .. (aimEnabled and "ON" or "OFF")
+		.. "\nWall Vision: " .. (wallVisionEnabled and "ON" or "OFF")
+end
+
+aimToggle.Activated:Connect(function()
+	aimEnabled = not aimEnabled
+	updateStatus()
+end)
+
+wallToggle.Activated:Connect(function()
+	wallVisionEnabled = not wallVisionEnabled
+	updateStatus()
+end)
+
+--==================================================
+-- MOBILE/PC SLIDER
+--==================================================
+
+local draggingSlider = false
+
+local function setSliderFromX(x)
+	local left = sliderBack.AbsolutePosition.X
+	local width = sliderBack.AbsoluteSize.X
+
+	local percent = math.clamp((x - left) / width, 0, 1)
+
+	aimStrength = math.floor(percent * 100)
+
+	sliderFill.Size = UDim2.new(percent,0,1,0)
+	sliderButton.Position =
+		UDim2.new(percent,-12,0.5,-12)
+
+	strengthLabel.Text =
+		"Aim Strength: " .. aimStrength .. "%"
+end
+
+sliderButton.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch then
+
+		draggingSlider = true
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if draggingSlider then
+		if input.UserInputType == Enum.UserInputType.MouseMovement
+			or input.UserInputType == Enum.UserInputType.Touch then
+
+			setSliderFromX(input.Position.X)
+		end
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch then
+
+		draggingSlider = false
+	end
+end)
+
+sliderBack.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1
+		or input.UserInputType == Enum.UserInputType.Touch then
+
+		setSliderFromX(input.Position.X)
+	end
+end)
+
+--==================================================
+-- OPEN / CLOSE
+--==================================================
+
+closeButton.Activated:Connect(function()
+	menu.Visible = false
+	openButton.Visible = true
+end)
+
+openButton.Activated:Connect(function()
+	menu.Visible = true
+	openButton.Visible = false
+end)
+
+-- PC keyboard shortcut
+UserInputService.InputBegan:Connect(function(input, processed)
+	if processed then
+		return
+	end
+
+	if input.KeyCode == Enum.KeyCode.RightShift then
+		menu.Visible = not menu.Visible
+		openButton.Visible = not menu.Visible
+	end
+end)
+
+--==================================================
+-- AIM TARGET
+--==================================================
+
+-- Returns true only when there is a clear line of sight to the target.
+local function hasLineOfSight(targetCharacter, targetPart)
+	if not targetCharacter or not targetPart then
+		return false
+	end
+
+	local origin = camera.CFrame.Position
+	local direction = targetPart.Position - origin
+
+	local raycastParams = RaycastParams.new()
+	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+	raycastParams.FilterDescendantsInstances = {player.Character}
+	raycastParams.IgnoreWater = true
+
+	local result = workspace:Raycast(origin, direction, raycastParams)
+
+	if not result then
+		return true
+	end
+
+	return result.Instance:IsDescendantOf(targetCharacter)
+end
+
+
+local function getClosestTarget()
+	local character = player.Character
+	if not character then
+		return nil
+	end
+
+	local root = character:FindFirstChild("HumanoidRootPart")
+	if not root then
+		return nil
+	end
+
+	local viewportSize = camera.ViewportSize
+	local crosshair = Vector2.new(viewportSize.X * 0.5, viewportSize.Y * 0.5)
+
+	local closestTarget = nil
+	local closestScreenDistance = math.huge
+	local closestWorldDistance = math.huge
+
+	for _, otherPlayer in ipairs(Players:GetPlayers()) do
+		if otherPlayer ~= player and otherPlayer.Team ~= player.Team then
+			local otherCharacter = otherPlayer.Character
+
+			if otherCharacter then
+				local humanoid = otherCharacter:FindFirstChildOfClass("Humanoid")
+				local targetRoot = otherCharacter:FindFirstChild("HumanoidRootPart")
+				local head = otherCharacter:FindFirstChild("Head")
+
+				if humanoid
+					and humanoid.Health > 0
+					and targetRoot
+					and head then
+
+					local worldDistance = (root.Position - targetRoot.Position).Magnitude
+
+					if worldDistance <= AIM_RANGE and hasLineOfSight(otherCharacter, head) then
+						local screenPosition, onScreen = camera:WorldToViewportPoint(head.Position)
+
+						if onScreen and screenPosition.Z > 0 then
+							local screenDistance =
+								(Vector2.new(screenPosition.X, screenPosition.Y) - crosshair).Magnitude
+
+							-- Prefer the enemy closest to the crosshair.
+							-- If they are equally close on screen, prefer the physically closer one.
+							if screenDistance < closestScreenDistance
+								or (math.abs(screenDistance - closestScreenDistance) < 0.001
+								and worldDistance < closestWorldDistance) then
+
+								closestScreenDistance = screenDistance
+								closestWorldDistance = worldDistance
+								closestTarget = head
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+
+	return closestTarget
+end
+
+
+--==================================================
+-- AIM ASSIST
+--==================================================
+
+RunService.RenderStepped:Connect(function()
+	if not aimEnabled then
+		return
+	end
+
+	local target = getClosestTarget()
+	if not target then
+		return
+	end
+
+	local targetCFrame = CFrame.lookAt(camera.CFrame.Position, target.Position)
+	local strength = aimStrength / 100
+
+	camera.CFrame = camera.CFrame:Lerp(targetCFrame, strength * 0.15)
+end)
+
+--==================================================
+-- WALL VISION
+--==================================================
+
+local highlights = {}
+
+local function removeHighlight(otherPlayer)
+	if highlights[otherPlayer] then
+		highlights[otherPlayer]:Destroy()
+		highlights[otherPlayer] = nil
+	end
+end
+
+local function createHighlight(otherPlayer)
+	if otherPlayer == player then
+		return
+	end
+
+	-- Ignore teammates
+	if otherPlayer.Team == player.Team then
+		removeHighlight(otherPlayer)
+		return
+	end
+
+	local character = otherPlayer.Character
+	if not character then
+		return
+	end
+
+	if highlights[otherPlayer] then
+		return
+	end
+
+	local highlight = Instance.new("Highlight")
+	highlight.Name = "TrainingHighlight"
+	highlight.Adornee = character
+	highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	highlight.FillTransparency = 0.75
+	highlight.OutlineTransparency = 0
+	highlight.Parent = character
+
+	highlights[otherPlayer] = highlight
+end
+
+local function updateWallVision()
+	for _, otherPlayer in ipairs(Players:GetPlayers()) do
+		if wallVisionEnabled then
+			createHighlight(otherPlayer)
+		else
+			removeHighlight(otherPlayer)
+		end
+	end
+end
+
+Players.PlayerAdded:Connect(function(otherPlayer)
+	otherPlayer.CharacterAdded:Connect(function()
+		task.wait(0.5)
+
+		if wallVisionEnabled then
+			createHighlight(otherPlayer)
+		end
+	end)
+
+	otherPlayer:GetPropertyChangedSignal("Team"):Connect(function()
+		updateWallVision()
+	end)
+end)
+
+Players.PlayerRemoving:Connect(function(otherPlayer)
+	removeHighlight(otherPlayer)
+end)
+
+player:GetPropertyChangedSignal("Team"):Connect(function()
+	updateWallVision()
+end)
+
+wallToggle.Activated:Connect(function()
+	task.wait()
+	updateWallVision()
+end)
+
+updateStatus()
